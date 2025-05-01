@@ -6,6 +6,8 @@ import Home from "./Pages/Home";
 import { useState } from "react";
 import Pokemon from "./Pages/Pokemon";
 import { Box } from "@mui/material";
+import PokemonDetailed from "./Pages/PokemonDetailed";
+import FavPokemon from "./Pages/FavPokemon";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -31,6 +33,8 @@ function App() {
         <Route path="/" element={<Home user={user} />} />
         <Route path="/signup" element={<Signup setUser={setUser} onSignup={handleSignup} />} />
         <Route path="/pokemon" element={<Pokemon />} />
+        <Route path='pokemon/:id' element={<PokemonDetailed/>} />
+        <Route path="favpokemon" element={<FavPokemon/>} />
       </Routes>
     </Box>
   );

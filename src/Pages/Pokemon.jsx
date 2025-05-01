@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Box, Grid, Card, CardContent, Typography,
-  TextField, MenuItem, CircularProgress, Button
-} from '@mui/material';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Box, CircularProgress, Typography, TextField, MenuItem, IconButton } from '@mui/material';
 import axios from 'axios';
+import { Favorite, FavoriteBorder } from '@mui/icons-material';
+import PokemonGrid from './Components/PokemonGrid';
+import PaginationControls from './Components/PaginationControls';
+
+const ITEMS_PER_PAGE_OPTIONS = [10, 20, 50];
 
 const Pokemon = () => {
   const [allPokemon, setAllPokemon] = useState([]);
-  const [filteredPokemon, setFilteredPokemon] = useState([]);
-  const [displayedPokemon, setDisplayedPokemon] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [selectedTypes, setSelectedTypes] = useState([]);
   const [types, setTypes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-
-  const itemsPerPage = 12;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [sortOption, setSortOption] = useState('id-asc');
+  const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
     const fetchPokemon = async () => {
@@ -30,7 +31,8 @@ const Pokemon = () => {
           types: res.data.types.map(t => t.type.name),
         }));
         setAllPokemon(pokemonData);
-        setTypes(getUniqueTypes(pokemonData));
+        const allTypes = pokemonData.flatMap(p => p.types);
+        setTypes([...new Set(allTypes)]);
       } catch (error) {
         console.error("Failed to fetch Pokémon:", error);
       } finally {
@@ -41,36 +43,48 @@ const Pokemon = () => {
   }, []);
 
   useEffect(() => {
-    let filtered = allPokemon.filter(p =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    if (selectedType) {
-      filtered = filtered.filter(p => p.types.includes(selectedType));
-    }
-    setFilteredPokemon(filtered);
-    setPage(1); // Reset to first page on filter
-  }, [searchTerm, selectedType, allPokemon]);
+    const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    setFavorites(savedFavorites);
+  }, []);
 
-  useEffect(() => {
-    const startIndex = (page - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    setDisplayedPokemon(filteredPokemon.slice(startIndex, endIndex));
-  }, [filteredPokemon, page]);
-
-  const getUniqueTypes = (pokemonList) => {
-    const allTypes = pokemonList.flatMap(p => p.types);
-    return [...new Set(allTypes)];
+  const addToFavorites = (pokemon) => {
+    const updatedFavorites = [...favorites, pokemon];
+    setFavorites(updatedFavorites);
+    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
   };
 
-  const totalPages = Math.ceil(filteredPokemon.length / itemsPerPage);
+  const removeFromFavorites = (pokemonId) => {
+    const updatedFavorites = favorites.filter(pokemon => pokemon.id !== pokemonId);
+    setFavorites(updatedFavorites);
+    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+  };
+
+  const filteredPokemon = useMemo(() => {
+    return allPokemon.filter(p =>
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      selectedTypes.every(type => p.types.includes(type))
+    );
+  }, [allPokemon, searchTerm, selectedTypes]);
+
+  const sortedPokemon = useMemo(() => {
+    const sorted = [...filteredPokemon];
+    if (sortOption === 'name-asc') sorted.sort((a, b) => a.name.localeCompare(b.name));
+    else if (sortOption === 'name-desc') sorted.sort((a, b) => b.name.localeCompare(a.name));
+    else if (sortOption === 'id-desc') sorted.sort((a, b) => b.id - a.id);
+    else sorted.sort((a, b) => a.id - b.id);
+    return sorted;
+  }, [filteredPokemon, sortOption]);
+
+  const totalPages = Math.ceil(sortedPokemon.length / itemsPerPage);
+  const displayedPokemon = sortedPokemon.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
     <Box p={3}>
-      <Typography variant="h4" mb={3} textAlign="center" sx={{ color: '#2a75bb' }} fontWeight={'bold'}>
+      <Typography variant="h4" mb={3} textAlign="center" fontWeight={'bold'} color="#2a75bb">
         Pokémon Directory
       </Typography>
 
-      {/* Search & Filter */}
+      {/* Search and Filter */}
       <Box display="flex" gap={2} mb={4} justifyContent="center" flexWrap="wrap">
         <TextField
           label="Search by name"
@@ -81,87 +95,46 @@ const Pokemon = () => {
         <TextField
           select
           label="Filter by type"
-          value={selectedType}
-          onChange={e => setSelectedType(e.target.value)}
+          value={selectedTypes}
+          onChange={e => setSelectedTypes(e.target.value)}
           sx={{ minWidth: 200 }}
+          SelectProps={{
+            multiple: true
+          }}
         >
-          <MenuItem value="">All Types</MenuItem>
           {types.map(type => (
             <MenuItem key={type} value={type}>{type}</MenuItem>
           ))}
         </TextField>
+        <TextField
+          select
+          label="Sort by"
+          value={sortOption}
+          onChange={e => setSortOption(e.target.value)}
+          sx={{ minWidth: 200 }}
+        >
+          <MenuItem value="id-asc">ID: Ascending</MenuItem>
+          <MenuItem value="id-desc">ID: Descending</MenuItem>
+          <MenuItem value="name-asc">Name: A-Z</MenuItem>
+          <MenuItem value="name-desc">Name: Z-A</MenuItem>
+        </TextField>
       </Box>
 
-      {/* Loading State */}
-      {loading && (
-        <Box display="flex" justifyContent="center">
-          <CircularProgress />
-        </Box>
-      )}
+      {loading ? (
+        <Box display="flex" justifyContent="center"><CircularProgress /></Box>
+      ) : (
+        <>
+          {/* Pokémon Grid */}
+          <PokemonGrid pokemonList={displayedPokemon} favorites={favorites}
+  toggleFavorite={(pokemon) =>
+    favorites.some(fav => fav.id === pokemon.id)
+      ? removeFromFavorites(pokemon.id)
+      : addToFavorites(pokemon)
+  }/>
 
-      {/* Empty State */}
-      {!loading && filteredPokemon.length === 0 && (
-        <Typography textAlign="center" color="text.secondary">
-          No Pokémon found.
-        </Typography>
-      )}
-
-      {/* Pokémon Grid */}
-      <Grid container spacing={3}>
-        {displayedPokemon.map(pokemon => (
-          <Grid item xs={12} sm={6} md={4} margin={3} lg={3} key={pokemon.id}>
-            <Card
-              sx={{
-                backgroundColor: '#EAC49D',
-                textAlign: 'center',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                boxShadow: 3,
-                borderRadius: 3,
-                padding: 2
-              }}
-            >
-              <img
-                src={pokemon.image}
-                alt={pokemon.name}
-                style={{ height: 100, margin: '0 auto' }}
-              />
-              <CardContent>
-                <Typography variant="h6" sx={{ textTransform: 'capitalize' }}>
-                  #{pokemon.id} <span style={{color:"#B9860C"}} >{pokemon.name}</span>
-                </Typography>
-                <Typography variant="body2">
-                  {pokemon.types.join(', ')}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* Pagination */}
-      {filteredPokemon.length > itemsPerPage && (
-        <Box mt={4} display="flex" justifyContent="center" gap={2}>
-          <Button
-            variant="contained"
-            disabled={page === 1}
-            onClick={() => setPage(prev => prev - 1)}
-            sx={{ backgroundColor: '#3B4CCA' }}
-          >
-            Previous
-          </Button>
-          <Typography mt={1.2}>Page {page} of {totalPages}</Typography>
-          <Button
-            variant="contained"
-            disabled={page === totalPages}
-            onClick={() => setPage(prev => prev + 1)}
-            sx={{ backgroundColor: '#3B4CCA' }}
-          >
-            Next
-          </Button>
-        </Box>
+          {/* Pagination */}
+          <PaginationControls page={page} setPage={setPage} totalPages={totalPages} />
+        </>
       )}
     </Box>
   );
