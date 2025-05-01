@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Grid, CircularProgress } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { MonitorHeart } from '@mui/icons-material';
+import { Favorite } from '@mui/icons-material';
 
 const FavPokemon = () => {
   const [favorites, setFavorites] = useState([]);
@@ -58,7 +58,7 @@ const FavPokemon = () => {
                       <Typography variant="h6" sx={{ textTransform: 'capitalize' }}>
                         #{pokemon.id} <span style={{ color: "#B9860C" }}>{pokemon.name}</span>
                       </Typography>
-                      <MonitorHeart color="error" />
+                      <Favorite color="error" />
                     </Box>
                   </Link>
                 </Grid>

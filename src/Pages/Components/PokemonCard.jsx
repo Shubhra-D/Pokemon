@@ -1,6 +1,7 @@
 import React from 'react';
-import { Card, CardContent, Typography, Box } from '@mui/material';
+import { Card, CardContent, Typography, Box, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { Favorite, FavoriteBorder } from '@mui/icons-material';
 
 const PokemonCard = ({ pokemon, isFavorite, toggleFavorite  }) => {
   const navigate = useNavigate();
@@ -13,35 +14,41 @@ const PokemonCard = ({ pokemon, isFavorite, toggleFavorite  }) => {
     <Card
       onClick={handleClick}
       sx={{
-        backgroundColor: '#EAC49D',
+        backgroundColor: '#FFC0CB',
         textAlign: 'center',
         height: '100%',
         display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
+        flexDirection:"column",
+        justifyContent:"space-around",
         boxShadow: 3,
         borderRadius: 3,
-        padding: 2,
         transition: 'transform 0.2s',
         '&:hover': {
           transform: 'scale(1.03)',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          backgroundColor:" #EAC49D"
         }
       }}
     >
       <Box>
-        <img
-          src={pokemon.image}
-          alt={pokemon.name}
-          style={{ height: 100, marginBottom: 12 }}
-        />
+        <img src={pokemon.image} alt={pokemon.name}/>
         <CardContent>
-          <Typography variant="h6" sx={{ textTransform: 'capitalize' }}>
-            #{pokemon.id} <span style={{ color: "#B9860C" }}>{pokemon.name}</span>
+          <Typography variant="h6" sx={{ textTransform: 'capitalize',color:"#B9860C" }}>
+            {pokemon.id}. <span style={{ color: "#B9860C" ,fontWeight:"bold"}}>{pokemon.name}</span>
           </Typography>
-          <Typography variant="body2">
+          <Typography variant="body2" sx={{color:"#B9860C",fontWeight:"bold"}}>
             {pokemon.types.join(', ')}
           </Typography>
+          {/* Heart Icon to Add/Remove Favorite */}
+      <IconButton
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent card click from firing
+          toggleFavorite(pokemon);
+        }}
+        color={isFavorite ? 'error' : 'default'}
+      >
+        {isFavorite ? <Favorite /> : <FavoriteBorder/>}
+      </IconButton>
         </CardContent>
       </Box>
     </Card>

@@ -1,7 +1,7 @@
 import { AppBar, Avatar, Box, Button, IconButton, Toolbar, Typography } from '@mui/material';
 import React from 'react';
 import Pikachu from '../assets/Pikachu.jpeg';
-import { AccountCircle } from '@mui/icons-material';
+import { AccountCircle, Favorite } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const Navbar = ({ user, onLogout }) => {
@@ -22,6 +22,9 @@ const Navbar = ({ user, onLogout }) => {
 
         {/* Right side: User Info / Signup */}
         <Box display="flex" alignItems="center" gap={2}>
+          <IconButton onClick={()=>navigate('/favpokemon')} sx={{color:"red"}}>
+               <Favorite/>
+          </IconButton>
           {user ? (
             <>
               <Avatar sx={{ bgcolor: '#3B4CCA' }}>

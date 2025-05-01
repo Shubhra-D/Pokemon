@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Typography } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import PokemonCard from './PokemonCard';
 
 const PokemonGrid = ({ pokemonList, favorites, toggleFavorite }) => {
@@ -12,14 +12,17 @@ const PokemonGrid = ({ pokemonList, favorites, toggleFavorite }) => {
   }
 
   return (
-    <Grid container gap={3}>
-      {pokemonList.map((pokemon) => (
-        <Grid key={pokemon.id}>
-          <PokemonCard pokemon={pokemon} isFavorite={favorites.some(fav => fav.id === pokemon.id)}
-            toggleFavorite={toggleFavorite}/>
-        </Grid>
-      ))}
-    </Grid>
+    <Box display="flex" flexWrap="wrap" gap={3}>
+  {pokemonList.map((pokemon) => (
+    <Box key={pokemon.id} flex="1 1 calc(25% - 1.5rem)" minWidth={200}>
+      <PokemonCard
+        pokemon={pokemon}
+        isFavorite={favorites.some(fav => fav.id === pokemon.id)}
+        toggleFavorite={toggleFavorite}
+      />
+    </Box>
+  ))}
+</Box>
   );
 };
 
