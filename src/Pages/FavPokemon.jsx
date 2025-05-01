@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, CircularProgress } from '@mui/material';
-import { Link } from 'react-router-dom';
-import { Favorite } from '@mui/icons-material';
+import React, { useEffect, useState } from "react";
+import { Box, Typography, Grid, CircularProgress, Button } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowBackIosSharp, Favorite } from "@mui/icons-material";
 
 const FavPokemon = () => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchFavorites = async () => {
       setLoading(true);
-      const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+      const savedFavorites =
+        JSON.parse(localStorage.getItem("favorites")) || [];
       setFavorites(savedFavorites);
       setLoading(false);
     };
@@ -20,34 +21,45 @@ const FavPokemon = () => {
 
   return (
     <Box p={3}>
-      <Typography variant="h4" mb={3} textAlign="center" fontWeight={'bold'} color="#2a75bb">
+      <Typography
+        variant="h4"
+        mb={3}
+        textAlign="center"
+        fontWeight={"bold"}
+        color="#2a75bb"
+      >
         My Favorite Pokémon
       </Typography>
 
       {loading ? (
-        <Box display="flex" justifyContent="center"><CircularProgress /></Box>
+        <Box display="flex" justifyContent="center">
+          <CircularProgress />
+        </Box>
       ) : (
         <>
           {favorites.length === 0 ? (
-            <Typography textAlign="center" color="text.secondary">
+            <Typography textAlign="center" color="error">
               No favorites yet. Start adding some!
             </Typography>
           ) : (
             <Grid container spacing={3}>
-              {favorites.map(pokemon => (
+              {favorites.map((pokemon) => (
                 <Grid item xs={12} sm={6} md={4} key={pokemon.id}>
-                  <Link to={`/pokemon/${pokemon.id}`} style={{ textDecoration: 'none' }}>
+                  <Link
+                    to={`/pokemon/${pokemon.id}`}
+                    style={{ textDecoration: "none" }}
+                  >
                     <Box
                       sx={{
-                        backgroundColor: '#EAC49D',
-                        textAlign: 'center',
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
+                        backgroundColor: "#EAC49D",
+                        textAlign: "center",
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
                         boxShadow: 3,
                         borderRadius: 3,
-                        padding: 2
+                        padding: 2,
                       }}
                     >
                       <img
@@ -55,8 +67,12 @@ const FavPokemon = () => {
                         alt={pokemon.name}
                         style={{ height: 100, marginBottom: 12 }}
                       />
-                      <Typography variant="h6" sx={{ textTransform: 'capitalize' }}>
-                        #{pokemon.id} <span style={{ color: "#B9860C" }}>{pokemon.name}</span>
+                      <Typography
+                        variant="h6"
+                        sx={{ textTransform: "capitalize" }}
+                      >
+                        #{pokemon.id}{" "}
+                        <span style={{ color: "#B9860C" }}>{pokemon.name}</span>
                       </Typography>
                       <Favorite color="error" />
                     </Box>
@@ -65,6 +81,15 @@ const FavPokemon = () => {
               ))}
             </Grid>
           )}
+          <Box display="flex" justifyContent="center" margin={4}>
+            <Button
+              onClick={() => navigate("/pokemon")}
+              sx={{ color: "white", backgroundColor: "#EC407A" }}
+              startIcon={<ArrowBackIosSharp />}
+            >
+              Go Back
+            </Button>
+          </Box>
         </>
       )}
     </Box>
