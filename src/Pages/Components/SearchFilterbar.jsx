@@ -16,6 +16,7 @@ const SearchFilterbar = ({
         label="Search by name"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
+        sx={{borderRadius:"10px",backgroundColor:"#FFCB05",color:"blueviolet"}}
       />
 
       {/* Type Filter (Multi-select) */}

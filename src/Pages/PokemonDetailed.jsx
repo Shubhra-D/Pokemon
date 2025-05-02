@@ -105,7 +105,7 @@ const PokemonDetailed = () => {
                 : ""
             }
             alt={chain.species.name}
-            style={{ height: 100, marginBottom: 12 }}
+            style={{ height: 70, marginBottom: 12 }}
           />
           <CardContent>
             <Typography variant="h6" sx={{ textTransform: "capitalize" }}>
@@ -127,7 +127,6 @@ const PokemonDetailed = () => {
         mb={3}
         textAlign="center"
         fontWeight="bold"
-        color="#2a75bb"
       >
         My name is{" "}
         {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
@@ -150,11 +149,11 @@ const PokemonDetailed = () => {
           style={{ height: 300, marginBottom: 12 }}
         />
         <CardContent>
-          <Typography variant="h5" sx={{ textTransform: "capitalize" }}>
+          <Typography variant="h5" sx={{ textTransform: "capitalize",color:"crimson" }}>
             #{pokemon.id}{" "}
             {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
           </Typography>
-          <Typography variant="body1">
+          <Typography variant="body1" sx={{ textTransform: "capitalize",color:"crimson" }}>
             Types: {pokemon.types.join(", ")}
           </Typography>
 

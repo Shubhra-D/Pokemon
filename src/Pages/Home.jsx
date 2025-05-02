@@ -2,9 +2,7 @@
 import React from "react";
 import { Box, Button, Typography, Grid } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-import homepoke from "../assets/homepoke.gif";
-import { linearGradient } from "framer-motion/client";
-
+import homepoke from '../assets/homepoke.gif'
 const Home = ({ user }) => {
   return (
       <Box
